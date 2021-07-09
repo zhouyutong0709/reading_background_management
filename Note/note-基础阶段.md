@@ -150,3 +150,74 @@ export default {
 }
 </script>
 ```
+
+## 表单校验高级用法
+### 用法一：动态改变校验规则
+
+1.rules 只包含一个校验规则
+```
+{
+  rules: {
+      user: [
+        { required: true, trigger: 'change', message: '用户名必须录入' },
+      ]
+  }
+}
+```
+
+2.动态添加 rules
+```
+addRule() {
+    const userValidator = (rule, value, callback) => {
+      if (value.length > 3) {
+        this.inputError = ''
+        this.inputValidateStatus = ''
+        callback()
+      } else {
+        callback(new Error('用户名长度必须大于3'))
+      }
+    }
+    const newRule = [
+      ...this.rules.user,
+      { validator: userValidator, trigger: 'change' }
+    ]
+    this.rules = Object.assign({}, this.rules, { user: newRule })
+}
+```
+
+### 用法二：手动控制校验状态
+> TIP
+>   - validate-status：验证状态，枚举值，共四种：
+>     * success：验证成功
+>     * error：验证失败
+>     * validating：验证中
+>     * (空)：未验证
+>   - error：自定义错误提示
+
+1.设置 el-form-item 属性
+```
+<el-form-item
+  label="用户名"
+  prop="user"
+  :error="error"
+  :validate-status="status"
+>
+<!-- ... -->
+</el-form-item>
+```
+
+2.自定义 status 和 error
+```
+showError() {
+  this.status = 'error'
+  this.error = '用户名输入有误'
+},
+showSuccess() {
+  this.status = 'success'
+  this.error = ''
+},
+showValidating() {
+  this.status = 'validating'
+  this.error = ''
+}
+```
